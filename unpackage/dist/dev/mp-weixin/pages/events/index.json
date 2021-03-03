@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "事件",
+  "usingComponents": {
+    "u-toast": "/uview-ui/components/u-toast/u-toast",
+    "u-back-top": "/uview-ui/components/u-back-top/u-back-top",
+    "u-search": "/uview-ui/components/u-search/u-search",
+    "u-dropdown": "/uview-ui/components/u-dropdown/u-dropdown",
+    "u-dropdown-item": "/uview-ui/components/u-dropdown-item/u-dropdown-item",
+    "u-button": "/uview-ui/components/u-button/u-button",
+    "u-icon": "/uview-ui/components/u-icon/u-icon",
+    "u-loadmore": "/uview-ui/components/u-loadmore/u-loadmore"
+  }
+}

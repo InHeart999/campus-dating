@@ -1,0 +1,133 @@
+{
+	"easycom": {
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [ 
+		{
+			"path": "pages/square/index",
+			"style":{
+				"navigationBarTitleText":"广场"
+			}
+		},{
+			"path": "pages/events/index",
+			"style":{
+				"navigationBarTitleText":"事件"
+			}
+		},{
+			"path": "pages/publish/index",
+			"style":{
+				"navigationBarTitleText":"发布"
+			}
+		},{
+			"path": "pages/news/index",
+			"style":{
+				"navigationBarTitleText":"消息"
+			}
+		},{
+			"path": "pages/person/index",
+			"style":{
+				"navigationBarTitleText":"个人"
+			}
+		},{
+			"path": "pages/person/modify/index",
+			"style": {
+				"navigationBarTitleText": "编辑资料"
+			}
+		},{
+			"path": "pages/publish/eventDescription/index",
+			"style": {
+				"navigationBarTitleText": "发布"
+			}
+		}
+	    ,{
+            "path" : "pages/square/comment/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/userinfo/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/news/chat/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        },
+		{
+		    "path" : "pages/events/eventDetail/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		},
+		{
+		    "path" : "pages/person/mark/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		},
+		{
+		    "path" : "pages/person/publish/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+    ],
+        "globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarBackgroundColor": "#554d84",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar":{
+		"selectedColor": "#554d84",
+		"list":[
+			{
+				"pagePath":"pages/square/index",
+				"text":"广场",
+				"iconPath":"static/tabbar/square00.png",
+				"selectedIconPath":"static/tabbar/square01.png"
+			},{
+				"pagePath": "pages/events/index",
+				"text":"事件",
+				"iconPath":"static/tabbar/events00.png",
+				"selectedIconPath":"static/tabbar/events01.png"
+			},{
+				"pagePath": "pages/publish/index",
+				"text":"发布",
+				"iconPath":"static/tabbar/publish01.png",
+				"selectedIconPath":"static/tabbar/publish01.png"
+			},{
+				"pagePath": "pages/news/index",
+				"text":"消息",
+				"iconPath":"static/tabbar/news00.png",
+				"selectedIconPath":"static/tabbar/news01.png"
+			},{
+				"pagePath": "pages/person/index",
+				"text":"个人",
+				"iconPath":"static/tabbar/person00.png",
+				"selectedIconPath":"static/tabbar/person01.png"
+			}
+		]
+	}
+}

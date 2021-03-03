@@ -1,0 +1,60 @@
+{
+  "pages": [
+    "pages/square/index",
+    "pages/events/index",
+    "pages/publish/index",
+    "pages/news/index",
+    "pages/person/index",
+    "pages/person/modify/index",
+    "pages/publish/eventDescription/index",
+    "pages/square/comment/index",
+    "pages/userinfo/index",
+    "pages/news/chat/index",
+    "pages/events/eventDetail/index",
+    "pages/person/mark/index",
+    "pages/person/publish/index"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#554d84",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "selectedColor": "#554d84",
+    "list": [
+      {
+        "pagePath": "pages/square/index",
+        "text": "广场",
+        "iconPath": "static/tabbar/square00.png",
+        "selectedIconPath": "static/tabbar/square01.png"
+      },
+      {
+        "pagePath": "pages/events/index",
+        "text": "事件",
+        "iconPath": "static/tabbar/events00.png",
+        "selectedIconPath": "static/tabbar/events01.png"
+      },
+      {
+        "pagePath": "pages/publish/index",
+        "text": "发布",
+        "iconPath": "static/tabbar/publish01.png",
+        "selectedIconPath": "static/tabbar/publish01.png"
+      },
+      {
+        "pagePath": "pages/news/index",
+        "text": "消息",
+        "iconPath": "static/tabbar/news00.png",
+        "selectedIconPath": "static/tabbar/news01.png"
+      },
+      {
+        "pagePath": "pages/person/index",
+        "text": "个人",
+        "iconPath": "static/tabbar/person00.png",
+        "selectedIconPath": "static/tabbar/person01.png"
+      }
+    ]
+  },
+  "usingComponents": {},
+  "sitemapLocation": "sitemap98.json"
+}

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "消息",
+  "usingComponents": {
+    "u-swipe-action": "/uview-ui/components/u-swipe-action/u-swipe-action",
+    "u-badge": "/uview-ui/components/u-badge/u-badge"
+  }
+}
