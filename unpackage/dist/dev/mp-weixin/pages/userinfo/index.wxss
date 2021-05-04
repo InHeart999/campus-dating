@@ -326,18 +326,11 @@
   -webkit-box-align: center;
   -webkit-align-items: center;
           align-items: center;
-  height: 60vw;
+  height: 70vw;
   padding: 30rpx;
   z-index: 9;
   background: #554d84;
   background-size: cover;
-}
-.user-wrap .info2.data-v-a391f616 {
-  position: absolute;
-  top: 250rpx;
-}
-.user-wrap .info2 .identity.data-v-a391f616 {
-  font-size: 28rpx;
 }
 .user-wrap .info4.data-v-a391f616 {
   position: absolute;
@@ -356,6 +349,7 @@
   top: 105rpx;
 }
 .user-wrap .info .avatar.data-v-a391f616 {
+  background-color: white;
   width: 150rpx;
   height: 150rpx;
   border-radius: 50%;
@@ -363,6 +357,11 @@
 .user-wrap .info .nickname.data-v-a391f616 {
   color: #fff;
   font-size: 36rpx;
+}
+.user-wrap .info .phone.data-v-a391f616 {
+  color: #fff;
+  font-size: 30rpx;
+  margin-top: 25rpx;
 }
 .callUser.data-v-a391f616 {
   margin: 50rpx 35%;

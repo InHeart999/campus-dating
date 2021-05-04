@@ -3,28 +3,26 @@
 		<u-toast ref="uToast" />
 		<view class="user-wrap">
 			<view class="info">
-				<image class="avatar" mode="aspectFill" :src="ava"></image>
-				<view class="nickname">{{username}}
+				<image class="avatar" mode="aspectFill" :src="userInfo.user_ava"></image>
+				<view class="nickname">{{userInfo.user_name}}
 					<u-icon size="30" name="../../../static/boy.png"></u-icon>
 				</view>
 				<view class="nickname">
-					<u-tag :show="!status" text="未认证" shape="circle" type="error" />
-					<u-tag :show="status" text="已认证" shape="circle" type="success" />
+					<u-tag :show="!userInfo.user_status" text="未认证" shape="circle" type="error" />
+					<u-tag :show="userInfo.user_status" text="已认证" shape="circle" type="success" />
 				</view>
-			</view>
-			<view class="info4" v-if="m_id != u_id">
-				<u-button v-if="mode == 0" type="primary" shape="circle" size="mini" @click="focus(u_id)">关注</u-button>
-				<u-button v-if="mode == 1" type="success" shape="circle" size="mini" @click="ufocus(u_id)">已关注</u-button>
+				<view v-show="userInfo.user_phone!=null && userInfo.user_phone!=''" class="phone">手机号码：{{userInfo.user_phone}}</view>
+				<view v-show="userInfo.user_wx!=null && userInfo.user_wx!='' " class="phone">微信：{{userInfo.user_wx}}</view>
 			</view>
 		</view>
 		<u-gap height="20" bg-color="#ececec"></u-gap>
 		<view class="production">
 			<view class="p_title">个人简介</view>
 			<u-line color="black" length="40%" margin="20rpx 30%"></u-line>
-			<view class="p_content">这里数数刚好有十个字这里数数刚好有十个字这里数数刚好有十个字这里数数刚好有十个字这里数数刚好有十个字</view>
+			<view class="p_content">{{userInfo.user_info}}</view>
 		</view>
 		<view class="callUser">
-			<u-button type="success" shape="circle">打个招呼</u-button>
+			<u-button @click="checkChatlist" type="success" shape="circle">打个招呼</u-button>
 		</view>
 	</view>
 </template>
@@ -33,40 +31,96 @@
 	export default {
 		data() {
 			return {
-				u_id: '',
-				m_id: '',
-				m_ava: require('static/ava01.png'),
-				m_gender: '',
-				m_name: '',
-				mode: 0,
-				ava: require('static/ava01.png'),
-				username: 'name01',
-				status:true,
-				gender: '男',
-				fans: '',
-				urls: [],
-				windowswidth: '',
-				newwidth: '',
-				two: '',
-				scrollTop: 0,
-				commentList: [],
-				yuepaiList: [],
-				list: [],
-				current: 0
+				userInfo:{},
+				chatInfo:{},
 			}
 		},
-		onLoad(res) {
-			//获取动态列表
-			//console.log(res.u_id)
-			// this.u_id = res.u_id;
-			// this.getUser();
-			//this.getTopic();
-		},
-		onPullDownRefresh: function() {
-			// this.getUser();
-			//this.getTopic();
+		onLoad(options) {
+			this.init(options.userId)
 		},
 		methods: {
+			init(userId){
+				let that=this
+				uni.request({
+					url: that.$store.state.baseUrl+'/user/'+userId,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.userInfo = res.data
+					}
+				})
+			},
+			chatPage(){
+				let that=this
+				// let info=that.chatInfo
+				// info.chatlist_del=1
+				// uni.request({
+				// 	url: that.$store.state.baseUrl+'/chatlist',
+				// 	header: {
+				// 		"Content-Type": "application/x-www-form-urlencoded"
+				// 	},
+				// 	method: 'PUT',
+				// 	data: info,
+				// 	success: (res) => {
+				// 		if(res.data==""){
+				// 			that.$refs.uToast.show({
+				// 				title: '创建房间失败！',
+				// 				type: 'error',
+				// 			}) 
+				// 		}
+				// 	}
+				// })
+				uni.navigateTo({
+					url: '../news/chat/index?userId=' + that.userInfo.user_id + '&userName=' + that.userInfo.user_name + '&userAva=' + that.userInfo.user_ava + '&roomId=' + that.roomId
+				})
+			},
+			//联系Ta
+			chat(){
+				let that=this
+				uni.request({
+					url: that.$store.state.baseUrl+'/chatlist',
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'POST',
+					data:{
+						chatlist_userId1: that.userId,
+						chatlist_userId2: that.userInfo.user_id	
+					},
+					success: (res) => {
+						if(res.data==""){
+							that.$refs.uToast.show({
+								title: '创建房间失败！',
+								type: 'error',
+							})
+						}else{
+							that.roomId=res.data.chatlist_id
+							that.chaiInfo=res.data
+						}
+					}
+				})
+			},
+			checkChatlist(){
+				let that=this
+				uni.request({
+					url: that.$store.state.baseUrl+'/chatlist/check?userId1=' + that.$store.state.userInfo.user_id + '&userId2=' +that.userInfo.user_id,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						if(res.data==""){
+							that.chat()
+						}else{
+							that.roomId=res.data[0].chatlist_id
+							that.chaiInfo=res.data[0]
+						}
+						that.chatPage()
+					}
+				})
+			},
 			//图片预览
 			previewImage(current, photos) {
 				uni.previewImage({
@@ -74,77 +128,6 @@
 					urls: photos
 				})
 			},
-			//发布
-			btnClick() {
-				uni.navigateTo({
-					url: './pub'
-				})
-			},
-			//信息初始化
-			// getUser() {
-			// 	uni.showLoading({
-			// 		title: '加载中'
-			// 	})
-			// 	uni.getStorage({
-			// 		key: 'userinfo',
-			// 		success: (res) => {
-			// 			this.m_id = res.data.openid
-			// 			this.m_ava = res.data.avatarUrl
-			// 			this.m_name = res.data.nickName
-			// 			this.m_gender = res.data.gender
-			// 			//console.log(this.m_id)
-
-			// 			uni.request({
-			// 				url: api.baseUrl+'/users/gettopic',
-			// 				method: 'GET',
-			// 				data: {
-			// 					u_id: this.u_id,
-			// 					m_id: this.m_id
-			// 				},
-			// 				success: (res) => {
-			// 					this.commentList = res.data
-			// 				}
-			// 			})
-
-			// 			uni.request({
-			// 				url: api.baseUrl+'/users/getfocus',
-			// 				method: 'POST',
-			// 				data: {
-			// 					u_id: this.u_id,
-			// 					m_id: this.m_id,
-			// 				},
-			// 				success: (res) => {
-			// 					//console.log(res)
-			// 					if (res.data.length == 0) {
-			// 						this.mode = 0
-			// 					} else {
-			// 						this.mode = 1
-			// 					}
-			// 				}
-			// 			})
-
-			// 		}
-			// 	})
-
-			// 	uni.request({
-			// 		url: api.baseUrl+'/users/userinfo',
-			// 		method: 'GET',
-			// 		data: {
-			// 			u_id: this.u_id,
-			// 		},
-			// 		success: (res) => {
-			// 			console.log(res)
-			// 			this.username = res.data[0].nickName;
-			// 			this.ava = res.data[0].avatarUrl;
-			// 			this.gender = res.data[0].gender;
-			// 			this.fans = res.data[0].fans;
-			// 			this.follow = res.data[0].follow;
-			// 			uni.hideNavigationBarLoading();
-			// 			uni.stopPullDownRefresh();
-			// 			uni.hideLoading();
-			// 		}
-			// 	})
-			// },
 		}
 	}
 </script>
@@ -485,7 +468,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		height: 60vw;
+		height: 70vw;
 		padding: 30rpx;
 		z-index: 9;
 		//border-radius: 0 0 20% 20%;
@@ -494,15 +477,6 @@
 		background: #554d84;
 		background-size: cover;
 
-		.info2 {
-			position: absolute;
-			top: 250rpx;
-
-			.identity {
-				//color: #fff;
-				font-size: 28rpx;
-			}
-		}
 
 		.info4 {
 			position: absolute;
@@ -523,6 +497,7 @@
 			top: 105rpx;
 
 			.avatar {
+				background-color: white;
 				width: 150rpx;
 				height: 150rpx;
 				border-radius: 50%;
@@ -531,6 +506,11 @@
 			.nickname {
 				color: #fff;
 				font-size: 36rpx;
+			}
+			.phone{
+				color:#fff;
+				font-size:30rpx;
+				margin-top:25rpx;
 			}
 		}
 

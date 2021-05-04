@@ -1,85 +1,89 @@
 <template>
 	<view class="wrap">
 		<u-toast ref="uToast" />
-		<view class="comment" v-for="(res, index) in commentList">
-			<view class="right">
-				<view class="top" @click="userinfo(res.u_id)">
-					<u-avatar :src="res.u_ava"></u-avatar>
-					<view class="name">{{ res.u_name }}</view>
+		<scroll-view scroll-y="true" :scroll-top="scrollTop" style="height:1080rpx">
+			<view class="comment">
+				<view class="right">
+					<view class="top" @click="findUser(userInfo.user_id)">
+						<u-avatar :src="userInfo.user_ava"></u-avatar>
+						<view class="name">{{ userInfo.user_name }}</view>
 
-				</view>
-				<view class="content" @click="reply(res)">{{ res.content }}</view>
-				<view class="reply-box">
-					<view v-if="res.url.length == 1" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
-						 style="width: 100%;"></image>
 					</view>
-					<view v-if="res.url.length == 2 || res.url.length == 4" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
-						 style="width:334rpx;height:334rpx;margin-bottom: 10rpx;"></image>
+					<view class="content">{{ eventInfo.event_info }}</view>
+					<view v-show="eventInfo.event_img[0]!=''">
+						<view class="reply-box">
+							<view v-if="eventInfo.event_img.length == 1" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+								<image @click="previewImage(index1,eventInfo.event_img)" v-for="(res1, index1) in eventInfo.event_img" :src="res1"
+								 mode="aspectFill" style="width: 100%;"></image>
+							</view>
+							<view v-if="eventInfo.event_img.length == 2 || eventInfo.event_img.length == 4" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+								<image @click="previewImage(index1,eventInfo.event_img)" v-for="(res1, index1) in eventInfo.event_img" :src="res1"
+								 mode="aspectFill" style="width:334rpx;height:334rpx;margin-bottom: 10rpx;"></image>
+							</view>
+							<view v-if="eventInfo.event_img.length == 3" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+								<image @click="previewImage(index1,eventInfo.event_img)" v-for="(res1, index1) in eventInfo.event_img" :src="res1"
+								 mode="aspectFill" style="width:220rpx;height:220rpx;margin-bottom: 10rpx;"></image>
+							</view>
+						</view>
 					</view>
-					<view v-if="res.url.length == 3" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
-						 style="width:220rpx;height:220rpx;margin-bottom: 10rpx;"></image>
+					<view class="bottom">
+						<view @click="comment" style="color: #5677fc;padding-left: 20rpx;">评论</view>
+						{{ eventInfo.event_time | timeFilters}}
 					</view>
-				</view>
-				<view class="bottom">
-					{{ res.pub_date }} {{res.place}}
-				</view>
-				<view style="padding: 10rpx;">
+					<!-- 	<view style="padding: 10rpx;">
 					<view style="display: flex;">
 						<view style="margin-right: 25rpx;">评论</view>
 						<view>{{res.com_num}}条</view>
 					</view>
-				</view>
-				<view>
+				</view> -->
 				</view>
 			</view>
-		</view>
 
-
-
-
-		<view style="margin-bottom: 150rpx;margin-left: 15rpx;margin-right: 15rpx;">
-			<view class="reply" v-for="(ies,idx) in replyList">
-				<view class="left" @click="userinfo(ies.u_id)">
-					<image :src="ies.r_ava" mode="aspectFill"></image>
-				</view>
-				<view class="right">
-					<view class="top">
-						<view class="name">{{ies.r_name}}
+			<view style="margin-bottom: 150rpx;margin-left: 15rpx;margin-right: 15rpx;">
+				<view class="reply" v-for="cmt in cmtList" :key="cmt.cmt_cmt_id">
+					<view class="left" @click="findUser(cmt.cmt_cmt_userId)">
+						<image :src="cmt.user_ava" mode="aspectFill"></image>
+					</view>
+					<view class="right">
+						<view class="top">
+							<view @click="findUser(cmt.cmt_cmt_userId)" class="name">{{cmt.user_name}}
+							</view>
+							<view class="time">{{cmt.cmt_cmt_time | timeFilters}}</view>
 						</view>
-						<view class="time">{{ies.r_date}}</view>
-					</view>
-					<view class="content" @click="reply1(ies)">{{ies.r_cont}}</view>
-					<view class="reply-box">
-					</view>
-					<view class="bottom">
-						<view style="background: #ececec;height:100%;width: 100%;color: #000000;border-radius: 15rpx;">
-							<view v-if="inx.r_id == ies.id" @click="reply2(inx)" v-for="(inx,index) in replys" style="margin-left: 10rpx;">
-								<text style="margin-right: 10rpx;color: #007AFF;">{{inx.name}}</text> 回复 <text style="margin-left: 10rpx;">{{inx.r_name}}</text>
-								：
-								{{inx.content}}
+						<view class="content">
+							{{cmt.cmt_cmt_info}}
+							<!-- <view @click="reply({cmtId:cmt.cmt_cmt_id,userName:cmt.user_name})" style="color: #5677fc;">
+							回复
+						</view> -->
+						</view>
+						<view class="reply-box">
+						</view>
+						<view class="bottom">
+							<view style="background: #ececec;height:100%;width: 100%;color: #000000;border-radius: 15rpx;">
+								<view v-for="rpl in rplList" :key="rpl.rpl_id" style="margin-left: 10rpx;">
+									<text style="margin-right: 10rpx;color: #007AFF;">{{rpl.user_name}}</text> 回复 <text style="margin-left: 10rpx;">{{rpl.user_name}}</text>
+									{{rpl.rpl_rpl_info}}
+								</view>
 							</view>
 						</view>
 					</view>
 				</view>
+				<view style="text-align: center;font-size: 20rpx;color: #d0d0d0;margin-top: 50rpx;">
+					<text>我也是有底线的~</text>
+				</view>
 			</view>
-			<view style="text-align: center;font-size: 20rpx;color: #d0d0d0;margin-top: 50rpx;">
-				<text>我也是有底线的~</text>
-			</view>
-		</view>
+		</scroll-view>
 
-		<view class="input">
-			<view style="width: 85%;">
-				<u-input v-model="value" :placeholder="'回复：'+placeholder" type="text" height="80" border="true"></u-input>
-			</view>
-			<view @click="submit" style="width: 90rpx;position: absolute;height: 70rpx;padding:15rpx 15rpx;right: 18rpx;color: white;background: #554d84;border-radius: 25rpx;">
-				<text>发布</text>
+		<view v-show="user_status==1">
+			<view class="input">
+				<view style="width: 85%;">
+					<u-input v-model="value" :placeholder="placeholder" type="text" height="80" border="true" maxlength="50"></u-input>
+				</view>
+				<view @click="submit" style="width: 90rpx;position: absolute;height: 70rpx;padding:15rpx 15rpx;right: 18rpx;color: white;background: #554d84;border-radius: 25rpx;">
+					<text>发布</text>
+				</view>
 			</view>
 		</view>
-		<u-action-sheet :list="list" @click="shanchu1" v-model="show"></u-action-sheet>
-		<u-action-sheet :list="list2" @click="shanchu2" v-model="show2"></u-action-sheet>
 	</view>
 
 
@@ -87,310 +91,192 @@
 </template>
 
 <script>
+	import utils from "../../../common/utils.js"
 	export default {
-		data() {
-			return {
-				time: '',
-				id: null,
-				list: [{
-					text: '删除'
-				}],
-				list2: [{
-					text: '删除'
-				}],
-				show2: false,
-				show: false,
-				u_id: '',
-				r_id: null,
-				m_id: '',
-				res_id: null,
-				type: 0,
-				name: 'kristen',
-				rename: null,
-				ava: '',
-				placeholder: '',
-				value: '',
-				commentList: [{
-					id:1,
-					u_id:'xx',
-					u_name:'name01',
-					u_ava:'../../../static/ava01.png',
-					u_gender:'男',
-					content:'今天是个好日子！',
-					com_num:10,
-					like_num:66,
-					pub_date:'2021-01-05 16:36:41',
-					url:['../../../static/test01.png'],
-					rep_date:'2021-01-05 16:36:41'
-			    }],
-				replyList: [],
-				replys: [],
-				com_num: ''
+		filters: {
+			timeFilters(val) {
+				return utils.renderTime(val)
 			}
 		},
-
-
-		onLoad(res) {
-			// this.id = res.id;
-			// this.placeholder = res.name;
-			// this.get();
-			// this.init();
+		data() {
+			return {
+				userInfo: {},
+				eventInfo: {},
+				cmtList: [],
+				rplList: [],
+				eventId: '',
+				value: '',
+				//0代表评论 1代表回复
+				flag: 0,
+				scrollTop: 0,
+				placeholder: '评论(仅限50个字以内！)',
+			}
 		},
-		onShow() {
-			// this.init();
+		computed: {
+			user_status() {
+				return this.$store.state.userInfo.user_status
+			}
+		},
+		onPullDownRefresh: function() {
+			this.initEvent()
+			this.initCmt()
+		},
+		onLoad(options) {
+			this.userInfo = {
+					user_id: options.user_id,
+					user_name: options.user_name,
+					user_ava: options.user_ava,
+				},
+				this.eventId = options.event_id
+			this.initEvent()
+			this.initCmt()
 		},
 		methods: {
-			//用户信息初始化
-		// 	init() {
-		// 		uni.getStorage({
-		// 			key: 'userinfo',
-		// 			fail: (res) => {
-		// 				uni.navigateTo({
-		// 					url: '../user/login'
-		// 				})
-		// 			}
-		// 		})
-		// 	},
-		// 	//删除评论
-		// 	shanchu1(res) {
-		// 		if (res == 0) {
-		// 			uni.request({
-		// 				url: api.baseUrl+'/delrep',
-		// 				method: 'GET',
-		// 				data: {
-		// 					id: this.r_id,
-		// 					t_id: this.id,
-		// 					time: this.time
-		// 				},
-		// 				success: (res) => {
-		// 					if (res.data.code == 1) {
-		// 						this.$refs.uToast.show({
-		// 							title: '删除回复成功',
-		// 							type: 'success',
-		// 						})
-		// 						this.get();
-		// 					} else {
-		// 						console.log('删除失败')
-		// 					}
-		// 				}
-		// 			})
-		// 		}
-		// 	},
-		// 	//删除回复
-		// 	shanchu2(res) {
-		// 		if (res == 0) {
-		// 			uni.request({
-		// 				url: api.baseUrl+'/delreps',
-		// 				method: 'GET',
-		// 				data: {
-		// 					id: this.res_id,
-		// 					time: this.time
-		// 				},
-		// 				success: (res) => {
-		// 					if (res.data.code == 1) {
-		// 						this.$refs.uToast.show({
-		// 							title: '删除回复成功',
-		// 							type: 'success',
-		// 						})
-		// 						this.get();
-		// 					} else {
-		// 						console.log('删除失败')
-		// 					}
-		// 				}
-		// 			})
-		// 		}
-		// 	},
-		// 	//初始化评论信息
-		// 	get() {
-		// 		uni.getStorage({
-		// 			key: 'userinfo',
-		// 			success: (res) => {
-		// 				this.name = res.data.nickName;
-		// 				this.ava = res.data.avatarUrl;
-		// 				this.u_id = res.data.openid;
-		// 				//console.log(this.u_id)
-		// 			}
-		// 		})
+			comment() {
+				let that = this
+				that.flag = 0
+				that.placeholder = '评论'
+				if(that.user_status==0){
+					that.$refs.uToast.show({
+						title: '请先进行学生认证！',
+						type: 'warning',
+					})
+				}
+			},
+			// reply(val){
+			// 	let that=this
+			// 	that.cmtId=val.cmtId
+			// 	that.flag=1
+			// 	that.placeholder='回复用户：'+val.userName
+			// },
+			//评论 + 回复
+			submit() {
+				let that = this
+				const userId = that.$store.state.userInfo.user_id;
+				const time = utils.formatDateTime();
+				const publishValue = that.value;
+				if (that.flag == 0) {
+					const info = {
+						cmt_userId: userId,
+						cmt_eventId: that.eventId,
+						cmt_info: publishValue,
+						cmt_time: time,
+					}
+					uni.request({
+						url: that.$store.state.baseUrl + '/cmt',
+						header: {
+							"Content-Type": "application/x-www-form-urlencoded"
+						},
+						data: info,
+						method: 'POST',
+						success: (res) => {
+							if (res.data != "") {
+								that.$refs.uToast.show({
+									title: '发布成功',
+									type: 'success',
+									callback: that.initCmt()
+								})
+								that.scrollTop = that.cmtList.length * 80
+							} else {
+								that.$refs.uToast.show({
+									title: '发布失败',
+									type: 'error',
+								})
+							}
+						}
+					})
+				} else {
+					const info = {
+						rpl_userId: userId,
+						rpl_cmtId: that.cmtId,
+						rpl_info: publishValue,
+						rpl_time: time,
+					}
+					uni.request({
+						url: that.$store.state.baseUrl + '/rpl',
+						header: {
+							"Content-Type": "application/x-www-form-urlencoded"
+						},
+						data: info,
+						method: 'POST',
+						success: (res) => {
+							if (res.data != "") {
+								that.$refs.uToast.show({
+									title: '发布成功',
+									type: 'success',
+								})
+							} else {
+								that.$refs.uToast.show({
+									title: '发布失败',
+									type: 'error',
+								})
+							}
+						}
+					})
+				}
+				that.value = ''
+			},
+			initEvent() {
+				let that = this
+				uni.request({
+					url: that.$store.state.baseUrl + '/event/' + that.eventId,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.eventInfo = res.data
+						that.eventInfo['event_img'] = that.eventInfo['event_img'].split(',')
+					}
+				})
+			},
+			initCmt() {
+				let that = this
+				uni.request({
+					url: that.$store.state.baseUrl + '/cmt/findByEventId?eventId=' + that.eventId,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.cmtList = res.data
+						// for(let cmt of res.data){
+						// 	that.initRpl(cmt['cmt_cmt_id'])
+						// 	console.log(that.rplList)
+						// 	Object.assign(cmt,{rplList:that.rplList})
+						// 	that.cmtList.push(cmt)
+						// }
+					}
+				})
+			},
+			initRpl(cmtId) {
+				let that = this
+				uni.request({
+					url: that.$store.state.baseUrl + '/rpl/findByCmtId?cmtId=' + cmtId,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.rplList = res.data
+						console.log(that.rplList)
+					}
+				})
+			},
 
-		// 		uni.request({
-		// 			url: api.baseUrl+'/comment',
-		// 			method: 'GET',
-		// 			data: {
-		// 				id: this.id
-		// 			},
-		// 			success: (res) => {
-		// 				this.commentList = res.data
-		// 				this.m_id = res.data[0].u_id;
-		// 				//console.log(this.m_id)
-		// 			}
-		// 		})
-		// 		uni.request({
-		// 			url: api.baseUrl+'/reply',
-		// 			method: 'GET',
-		// 			data: {
-		// 				id: this.id
-		// 			},
-		// 			success: (res) => {
-		// 				this.replyList = res.data
-		// 				//console.log(res.data)
-		// 			}
-		// 		})
-		// 		uni.request({
-		// 			url: api.baseUrl+'/replys',
-		// 			method: 'GET',
-		// 			data: {
-		// 				id: this.id
-		// 			},
-		// 			success: (res) => {
-		// 				this.replys = res.data
-		// 				//console.log(res.data)
-		// 			}
-		// 		})
-		// 	},
-		// 	//提交评论或回复
-		// 	submit() {
-		// 		if (this.type == 2 || this.type == 1) {
-		// 			if (this.value == '') {
-		// 				this.$refs.uToast.show({
-		// 					title: '内容不能为空',
-		// 					type: 'error'
-		// 				})
-		// 			} else {
-		// 				uni.request({
-		// 					url: api.baseUrl+'/pubreplys',
-		// 					method: 'GET',
-		// 					data: {
-		// 						u_id: this.u_id,
-		// 						t_id: this.id,
-		// 						r_id: this.r_id,
-		// 						m_id: this.m_id,
-		// 						m_ava: this.ava,
-		// 						name: this.name,
-		// 						rename: this.rename,
-		// 						content: this.value
-		// 					},
-		// 					success: (res) => {
-		// 						if (res.data.code == 1) {
-		// 							//console.log("评论成功")
-		// 							this.get();
-		// 							this.$refs.uToast.show({
-		// 								title: '评论成功',
-		// 								type: 'success'
-		// 							})
-		// 							this.value = '';
-		// 						} else if (res.data.code == 0) {
-		// 							console.log("评论失败")
-		// 						}
-
-		// 					}
-		// 				})
-		// 			}
-		// 		} else {
-		// 			if (this.value == '') {
-		// 				this.$refs.uToast.show({
-		// 					title: '内容不能为空',
-		// 					type: 'error'
-		// 				})
-		// 			} else {
-		// 				uni.request({
-		// 					url: api.baseUrl+'/pubreply',
-		// 					method: 'GET',
-		// 					data: {
-		// 						u_id: this.u_id,
-		// 						name: this.name,
-		// 						ava: this.ava,
-		// 						m_id: this.m_id,
-		// 						content: this.value,
-		// 						id: this.id
-		// 					},
-		// 					success: (res) => {
-		// 						if (res.data.code == 1) {
-		// 							console.log("评论成功")
-		// 							this.get();
-		// 							this.$refs.uToast.show({
-		// 								title: '评论成功',
-		// 								type: 'success'
-		// 							})
-		// 							this.value = '';
-		// 						} else if (res.data.code == 0) {
-		// 							console.log("评论失败")
-		// 						}
-
-		// 					}
-		// 				})
-		// 			}
-
-		// 		}
-
-
-		// 	},
-		// 	//回复评论
-		// 	reply1(res) {
-		// 		if (this.u_id == res.u_id) {
-		// 			this.r_id = res.id;
-		// 			this.time = res.r_date;
-		// 			this.show = true;
-		// 			console.log(this.time)
-		// 			//console.log(this.r_id)
-		// 		} else {
-		// 			this.placeholder = res.r_name;
-		// 			this.rename = res.r_name;
-		// 			this.r_id = res.id;
-		// 			this.m_id = res.u_id;
-		// 			this.type = 1;
-		// 			this.$refs.uToast.show({
-		// 				title: '当前回复：' + this.placeholder,
-		// 				type: 'success',
-		// 			})
-		// 		}
-
-
-		// 	},
-		// 	reply2(res) {
-		// 		if (this.u_id == res.u_id) {
-		// 			this.r_id = res.r_id;
-		// 			this.res_id = res.id;
-		// 			this.time = res.r_date;
-		// 			this.show2 = true;
-		// 			//console.log(this.r_id)
-		// 		} else {
-		// 			this.placeholder = res.name;
-		// 			this.rename = res.name;
-		// 			this.r_id = res.r_id;
-		// 			this.m_id = res.u_id;
-		// 			this.type = 2;
-		// 			this.$refs.uToast.show({
-		// 				title: '当前回复：' + this.placeholder,
-		// 				type: 'success',
-		// 			})
-		// 		}
-
-
-		// 	},
-		// 	reply(res) {
-		// 		this.placeholder = res.u_name
-		// 		this.m_id = res.u_id
-		// 		this.time = res.r_date
-		// 		this.type = 0
-		// 		this.$refs.uToast.show({
-		// 			title: '当前回复：' + this.placeholder,
-		// 			type: 'success',
-		// 		})
-		// 	},
-		// 	//图片预览
-		// 	previewImage(current, photos) {
-		// 		uni.previewImage({
-		// 			current,
-		// 			urls: photos
-		// 		})
-		// 	},
-		// 	//个人中心跳转
-		// 	userinfo(res) {
-		// 		console.log(res)
-		// 		uni.navigateTo({
-		// 			url: '../user/userinfo/userinfo?u_id=' + res
-		// 		})
-		// 	},
+			//图片预览
+			previewImage(current, photos) {
+				uni.previewImage({
+					current,
+					urls: photos
+				})
+			},
+			//个人中心跳转
+			findUser(userId) {
+				uni.navigateTo({
+					url: '../../userinfo/index?userId=' + userId
+				})
+			},
 
 		}
 	}
@@ -545,10 +431,11 @@
 				//margin-top: 20rpx;
 				margin-left: 10rpx;
 				display: flex;
-				font-size: 24rpx;
+				// font-size: 24rpx;
 				color: #9a9a9a;
-				margin-bottom: 10rpx;
+				margin: 40rpx 10rpx;
 				position: relative;
+				flex-direction: row-reverse;
 
 
 				.reply {
@@ -662,6 +549,7 @@
 			}
 
 			.content {
+				display: flex;
 				margin-bottom: 10rpx;
 				margin-left: 10rpx;
 				margin-top: 10rpx;

@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "个人",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "u-toast": "/uview-ui/components/u-toast/u-toast",
     "u-tag": "/uview-ui/components/u-tag/u-tag",

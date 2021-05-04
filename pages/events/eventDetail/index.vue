@@ -1,85 +1,45 @@
 <template>
 	<view class="wrap">
 		<u-toast ref="uToast" />
-		<view class="comment" v-for="(res, index) in commentList">
+		<view class="comment">
 			<view class="right">
-				<view class="top" @click="userinfo(res.u_id)">
-					<u-avatar :src="res.u_ava"></u-avatar>
-					<view class="name">{{ res.u_name }}</view>
+				<view class="top" @click="findUser(userInfo.user_id)">
+					<u-avatar :src="userInfo.user_ava"></u-avatar>
+					<view class="name">{{ userInfo.user_name }}</view>
 
 				</view>
-				<view class="content" @click="reply(res)">{{ res.content }}</view>
-				<view class="reply-box">
-					<view v-if="res.url.length == 1" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
+				<view class="content">{{ eventInfo.event_info }}</view>
+				<view class="reply-box" v-show="eventUrl!=''">
+					<view v-if="eventUrl.length == 1" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+						<image @click="previewImage(index1,eventUrl)" v-for="(res1, index1) in eventUrl" :src="res1" mode="aspectFill"
 						 style="width: 100%;"></image>
 					</view>
-					<view v-if="res.url.length == 2 || res.url.length == 4" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
+					<view v-if="eventUrl.length == 2 || eventUrl.length == 4" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+						<image @click="previewImage(index1,eventUrl)" v-for="(res1, index1) in eventUrl" :src="res1" mode="aspectFill"
 						 style="width:334rpx;height:334rpx;margin-bottom: 10rpx;"></image>
 					</view>
-					<view v-if="res.url.length == 3" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
+					<view v-if="eventUrl.length == 3" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+						<image @click="previewImage(index1,eventUrl)" v-for="(res1, index1) in eventUrl" :src="res1" mode="aspectFill"
 						 style="width:220rpx;height:220rpx;margin-bottom: 10rpx;"></image>
 					</view>
 				</view>
 				<view class="bottom">
-					{{ res.pub_date }} {{res.place}}
-				</view>
-				<view style="padding: 10rpx;">
-					<view style="display: flex;">
-						<view style="margin-right: 25rpx;">评论</view>
-						<view>{{res.com_num}}条</view>
-					</view>
-				</view>
-				<view>
+					{{ eventInfo.event_time |timeFilters}}
 				</view>
 			</view>
 		</view>
 
 
-
-
-		<view style="margin-bottom: 150rpx;margin-left: 15rpx;margin-right: 15rpx;">
-			<view class="reply" v-for="(ies,idx) in replyList">
-				<view class="left" @click="userinfo(ies.u_id)">
-					<image :src="ies.r_ava" mode="aspectFill"></image>
-				</view>
+		<view v-show="eventInfo.event_type!='daily1' && userInfo.user_id!=userId && userStatus!=0">
+			<view class="operation">
 				<view class="right">
-					<view class="top">
-						<view class="name">{{ies.r_name}}
-						</view>
-						<view class="time">{{ies.r_date}}</view>
-					</view>
-					<view class="content" @click="reply1(ies)">{{ies.r_cont}}</view>
-					<view class="reply-box">
-					</view>
-					<view class="bottom">
-						<view style="background: #ececec;height:100%;width: 100%;color: #000000;border-radius: 15rpx;">
-							<view v-if="inx.r_id == ies.id" @click="reply2(inx)" v-for="(inx,index) in replys" style="margin-left: 10rpx;">
-								<text style="margin-right: 10rpx;color: #007AFF;">{{inx.name}}</text> 回复 <text style="margin-left: 10rpx;">{{inx.r_name}}</text>
-								：
-								{{inx.content}}
-							</view>
-						</view>
-					</view>
+					<u-button @click="checkChatlist" type="success">联系TA</u-button>
+				</view>
+				<view class="left">
+					<u-button @click="checkMark" type="warning">标记</u-button>
 				</view>
 			</view>
-			<view style="text-align: center;font-size: 20rpx;color: #d0d0d0;margin-top: 50rpx;">
-				<text>我也是有底线的~</text>
-			</view>
 		</view>
-
-		<view class="input">
-			<view style="width: 85%;">
-				<u-input v-model="value" :placeholder="'回复：'+placeholder" type="text" height="80" border="true"></u-input>
-			</view>
-			<view @click="submit" style="width: 90rpx;position: absolute;height: 70rpx;padding:15rpx 15rpx;right: 18rpx;color: white;background: #554d84;border-radius: 25rpx;">
-				<text>发布</text>
-			</view>
-		</view>
-		<u-action-sheet :list="list" @click="shanchu1" v-model="show"></u-action-sheet>
-		<u-action-sheet :list="list2" @click="shanchu2" v-model="show2"></u-action-sheet>
 	</view>
 
 
@@ -87,316 +47,209 @@
 </template>
 
 <script>
+	import utils from "../../../common/utils.js"
 	export default {
-		data() {
-			return {
-				time: '',
-				id: null,
-				list: [{
-					text: '删除'
-				}],
-				list2: [{
-					text: '删除'
-				}],
-				show2: false,
-				show: false,
-				u_id: '',
-				r_id: null,
-				m_id: '',
-				res_id: null,
-				type: 0,
-				name: 'kristen',
-				rename: null,
-				ava: '',
-				placeholder: '',
-				value: '',
-				commentList: [{
-					id:1,
-					u_id:'xx',
-					u_name:'name01',
-					u_ava:'../../../static/ava01.png',
-					u_gender:'男',
-					content:'今天是个好日子！',
-					com_num:10,
-					like_num:66,
-					pub_date:'2021-01-05 16:36:41',
-					url:['../../../static/test01.png'],
-					rep_date:'2021-01-05 16:36:41'
-			    }],
-				replyList: [],
-				replys: [],
-				com_num: ''
+		filters: {
+			timeFilters(val) {
+				return utils.renderTime(val)
+			},
+		},
+		computed: {
+			userId() {
+				return this.$store.state.userInfo.user_id
+			},
+			userStatus() {
+				return this.$store.state.userInfo.user_status
 			}
 		},
-
-
-		onLoad(res) {
-			// this.id = res.id;
-			// this.placeholder = res.name;
-			// this.get();
-			// this.init();
+		data() {
+			return {
+				selectType: '',
+				userInfo: {},
+				eventInfo: {},
+				chatInfo:{},
+				eventUrl: [],
+				roomId:'',
+			}
 		},
-		onShow() {
-			// this.init();
+		onLoad(options) {
+			this.selectType = options.type
+			this.init1(options.eventId)
+			this.init2(options.userId)
 		},
 		methods: {
-			//用户信息初始化
-		// 	init() {
-		// 		uni.getStorage({
-		// 			key: 'userinfo',
-		// 			fail: (res) => {
-		// 				uni.navigateTo({
-		// 					url: '../user/login'
-		// 				})
-		// 			}
-		// 		})
-		// 	},
-		// 	//删除评论
-		// 	shanchu1(res) {
-		// 		if (res == 0) {
-		// 			uni.request({
-		// 				url: api.baseUrl+'/delrep',
-		// 				method: 'GET',
-		// 				data: {
-		// 					id: this.r_id,
-		// 					t_id: this.id,
-		// 					time: this.time
-		// 				},
-		// 				success: (res) => {
-		// 					if (res.data.code == 1) {
-		// 						this.$refs.uToast.show({
-		// 							title: '删除回复成功',
-		// 							type: 'success',
-		// 						})
-		// 						this.get();
-		// 					} else {
-		// 						console.log('删除失败')
-		// 					}
-		// 				}
-		// 			})
-		// 		}
-		// 	},
-		// 	//删除回复
-		// 	shanchu2(res) {
-		// 		if (res == 0) {
-		// 			uni.request({
-		// 				url: api.baseUrl+'/delreps',
-		// 				method: 'GET',
-		// 				data: {
-		// 					id: this.res_id,
-		// 					time: this.time
-		// 				},
-		// 				success: (res) => {
-		// 					if (res.data.code == 1) {
-		// 						this.$refs.uToast.show({
-		// 							title: '删除回复成功',
-		// 							type: 'success',
-		// 						})
-		// 						this.get();
-		// 					} else {
-		// 						console.log('删除失败')
-		// 					}
-		// 				}
-		// 			})
-		// 		}
-		// 	},
-		// 	//初始化评论信息
-		// 	get() {
-		// 		uni.getStorage({
-		// 			key: 'userinfo',
-		// 			success: (res) => {
-		// 				this.name = res.data.nickName;
-		// 				this.ava = res.data.avatarUrl;
-		// 				this.u_id = res.data.openid;
-		// 				//console.log(this.u_id)
-		// 			}
-		// 		})
-
-		// 		uni.request({
-		// 			url: api.baseUrl+'/comment',
-		// 			method: 'GET',
-		// 			data: {
-		// 				id: this.id
-		// 			},
-		// 			success: (res) => {
-		// 				this.commentList = res.data
-		// 				this.m_id = res.data[0].u_id;
-		// 				//console.log(this.m_id)
-		// 			}
-		// 		})
-		// 		uni.request({
-		// 			url: api.baseUrl+'/reply',
-		// 			method: 'GET',
-		// 			data: {
-		// 				id: this.id
-		// 			},
-		// 			success: (res) => {
-		// 				this.replyList = res.data
-		// 				//console.log(res.data)
-		// 			}
-		// 		})
-		// 		uni.request({
-		// 			url: api.baseUrl+'/replys',
-		// 			method: 'GET',
-		// 			data: {
-		// 				id: this.id
-		// 			},
-		// 			success: (res) => {
-		// 				this.replys = res.data
-		// 				//console.log(res.data)
-		// 			}
-		// 		})
-		// 	},
-		// 	//提交评论或回复
-		// 	submit() {
-		// 		if (this.type == 2 || this.type == 1) {
-		// 			if (this.value == '') {
-		// 				this.$refs.uToast.show({
-		// 					title: '内容不能为空',
-		// 					type: 'error'
-		// 				})
-		// 			} else {
-		// 				uni.request({
-		// 					url: api.baseUrl+'/pubreplys',
-		// 					method: 'GET',
-		// 					data: {
-		// 						u_id: this.u_id,
-		// 						t_id: this.id,
-		// 						r_id: this.r_id,
-		// 						m_id: this.m_id,
-		// 						m_ava: this.ava,
-		// 						name: this.name,
-		// 						rename: this.rename,
-		// 						content: this.value
-		// 					},
-		// 					success: (res) => {
-		// 						if (res.data.code == 1) {
-		// 							//console.log("评论成功")
-		// 							this.get();
-		// 							this.$refs.uToast.show({
-		// 								title: '评论成功',
-		// 								type: 'success'
-		// 							})
-		// 							this.value = '';
-		// 						} else if (res.data.code == 0) {
-		// 							console.log("评论失败")
-		// 						}
-
-		// 					}
-		// 				})
-		// 			}
-		// 		} else {
-		// 			if (this.value == '') {
-		// 				this.$refs.uToast.show({
-		// 					title: '内容不能为空',
-		// 					type: 'error'
-		// 				})
-		// 			} else {
-		// 				uni.request({
-		// 					url: api.baseUrl+'/pubreply',
-		// 					method: 'GET',
-		// 					data: {
-		// 						u_id: this.u_id,
-		// 						name: this.name,
-		// 						ava: this.ava,
-		// 						m_id: this.m_id,
-		// 						content: this.value,
-		// 						id: this.id
-		// 					},
-		// 					success: (res) => {
-		// 						if (res.data.code == 1) {
-		// 							console.log("评论成功")
-		// 							this.get();
-		// 							this.$refs.uToast.show({
-		// 								title: '评论成功',
-		// 								type: 'success'
-		// 							})
-		// 							this.value = '';
-		// 						} else if (res.data.code == 0) {
-		// 							console.log("评论失败")
-		// 						}
-
-		// 					}
-		// 				})
-		// 			}
-
-		// 		}
-
-
-		// 	},
-		// 	//回复评论
-		// 	reply1(res) {
-		// 		if (this.u_id == res.u_id) {
-		// 			this.r_id = res.id;
-		// 			this.time = res.r_date;
-		// 			this.show = true;
-		// 			console.log(this.time)
-		// 			//console.log(this.r_id)
-		// 		} else {
-		// 			this.placeholder = res.r_name;
-		// 			this.rename = res.r_name;
-		// 			this.r_id = res.id;
-		// 			this.m_id = res.u_id;
-		// 			this.type = 1;
-		// 			this.$refs.uToast.show({
-		// 				title: '当前回复：' + this.placeholder,
-		// 				type: 'success',
-		// 			})
-		// 		}
-
-
-		// 	},
-		// 	reply2(res) {
-		// 		if (this.u_id == res.u_id) {
-		// 			this.r_id = res.r_id;
-		// 			this.res_id = res.id;
-		// 			this.time = res.r_date;
-		// 			this.show2 = true;
-		// 			//console.log(this.r_id)
-		// 		} else {
-		// 			this.placeholder = res.name;
-		// 			this.rename = res.name;
-		// 			this.r_id = res.r_id;
-		// 			this.m_id = res.u_id;
-		// 			this.type = 2;
-		// 			this.$refs.uToast.show({
-		// 				title: '当前回复：' + this.placeholder,
-		// 				type: 'success',
-		// 			})
-		// 		}
-
-
-		// 	},
-		// 	reply(res) {
-		// 		this.placeholder = res.u_name
-		// 		this.m_id = res.u_id
-		// 		this.time = res.r_date
-		// 		this.type = 0
-		// 		this.$refs.uToast.show({
-		// 			title: '当前回复：' + this.placeholder,
-		// 			type: 'success',
-		// 		})
-		// 	},
-		// 	//图片预览
-		// 	previewImage(current, photos) {
-		// 		uni.previewImage({
-		// 			current,
-		// 			urls: photos
-		// 		})
-		// 	},
-		// 	//个人中心跳转
-		// 	userinfo(res) {
-		// 		console.log(res)
-		// 		uni.navigateTo({
-		// 			url: '../user/userinfo/userinfo?u_id=' + res
-		// 		})
-		// 	},
-
+			init1(eventId) {
+				let that = this
+				uni.request({
+					url: that.$store.state.baseUrl+'/event/' + eventId,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.eventInfo = res.data
+						that.eventUrl = res.data.event_img.split(',')
+					}
+				})
+			},
+			init2(userId) {
+				let that = this
+				uni.request({
+					url: that.$store.state.baseUrl+'/user/' + userId,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.userInfo = res.data
+					}
+				})
+			},
+			chatPage(){
+				let that=this
+				// let info=that.chatInfo
+				// info.chatlist_del=1
+				// uni.request({
+				// 	url: that.$store.state.baseUrl+'/chatlist',
+				// 	header: {
+				// 		"Content-Type": "application/x-www-form-urlencoded"
+				// 	},
+				// 	method: 'PUT',
+				// 	data: info,
+				// 	success: (res) => {
+				// 		if(res.data==""){
+				// 			that.$refs.uToast.show({
+				// 				title: '创建房间失败！',
+				// 				type: 'error',
+				// 			}) 
+				// 		}
+				// 	}
+				// })
+				uni.navigateTo({
+					url: '../../news/chat/index?userId=' + that.userInfo.user_id + '&userName=' + that.userInfo.user_name + '&userAva=' + that.userInfo.user_ava + '&roomId=' + that.roomId
+				})
+			},
+			//联系Ta
+			chat(){
+				let that=this
+				uni.request({
+					url: that.$store.state.baseUrl+'/chatlist',
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'POST',
+					data:{
+						chatlist_userId1: that.userId,
+						chatlist_userId2: that.userInfo.user_id	
+					},
+					success: (res) => {
+						if(res.data==""){
+							that.$refs.uToast.show({
+								title: '创建房间失败！',
+								type: 'error',
+							})
+						}else{
+							that.roomId=res.data.chatlist_id
+							that.chaiInfo=res.data
+						}
+					}
+				})
+			},
+			checkChatlist(){
+				let that=this
+				uni.request({
+					url: that.$store.state.baseUrl+'/chatlist/check?userId1=' + that.userId + '&userId2=' +that.userInfo.user_id,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						if(res.data==""){
+							that.chat()
+						}else{
+							that.roomId=res.data[0].chatlist_id
+							that.chaiInfo=res.data[0]
+						}
+						that.chatPage()
+					}
+				})
+			},
+			//检查是否标记
+			checkMark(){
+				let that = this
+				uni.request({
+					url: that.$store.state.baseUrl+'/mark/check?userId='+that.userId+'&eventId='+that.eventInfo.event_id,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						if(res.data!=""){
+							that.$refs.uToast.show({
+								title: '该事件已标记过！',
+								type: 'warning',
+							})
+						}else{
+							that.mark()
+						}
+					}
+				})
+			},
+			//标记
+			mark(){
+				let that = this
+				const markInfo={
+					mark_userId: that.userId,
+					mark_eventId: that.eventInfo.event_id,
+				}
+				uni.request({
+					url: that.$store.state.baseUrl+'/mark',
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					data: markInfo,
+					method: 'POST',
+					success: (res) => {
+						if(res.data!=""){
+							that.$refs.uToast.show({
+								title: '标记成功',
+								type: 'success',
+							})
+						}
+					}
+				})
+			},
+			
+			findUser(userId) {
+				uni.navigateTo({
+					url: '../../userinfo/index?userId=' + userId
+				})
+			},
+			//图片预览
+			previewImage(current, photos) {
+				uni.previewImage({
+					current,
+					urls: photos
+				})
+			},
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
+	.operation {
+		position: fixed;
+		width: 100%;
+		bottom: 60rpx;
+		padding: 0rpx 30rpx;
+		display: flex;
+		flex-direction: row-reverse;
+
+		.left {
+			padding-right: 20rpx;
+		}
+	}
+
 	.wrap {
 		//padding: 10rpx;
 		height: 100%;
@@ -408,19 +261,6 @@
 		top: 35rpx;
 		right: 30rpx;
 
-	}
-
-	.input {
-		display: flex;
-		position: fixed;
-		bottom: 10rpx;
-		width: 100%;
-		z-index: 999;
-		//background: red;
-		left: 10rpx;
-		background: #fff;
-		align-items: center;
-		//padding: 20rpx;
 	}
 
 	.num {
@@ -542,13 +382,13 @@
 			}
 
 			.bottom {
-				//margin-top: 20rpx;
-				margin-left: 10rpx;
 				display: flex;
 				font-size: 24rpx;
 				color: #9a9a9a;
-				margin-bottom: 10rpx;
-				position: relative;
+				position: absolute;
+				padding-top: 90rpx;
+				right: 30rpx;
+
 
 
 				.reply {

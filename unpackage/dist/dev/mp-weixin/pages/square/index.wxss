@@ -1,3 +1,8 @@
+
+page {
+	background-color: #eeeeee;
+}
+
 @charset "UTF-8";
 /**
  * 这里是uni-app内置的常用样式变量
@@ -112,7 +117,7 @@
 .comment .right .content.data-v-d4e6bb4e {
   margin-left: 20rpx;
   margin-top: 15rpx;
-  margin-bottom: 15rpx;
+  margin-bottom: 45rpx;
   margin-right: 20rpx;
 }
 .comment .right .reply-box .item.data-v-d4e6bb4e {

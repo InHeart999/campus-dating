@@ -1,7 +1,10 @@
 {
   "navigationBarTitleText": "消息",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "u-swipe-action": "/uview-ui/components/u-swipe-action/u-swipe-action",
-    "u-badge": "/uview-ui/components/u-badge/u-badge"
+    "u-badge": "/uview-ui/components/u-badge/u-badge",
+    "u-toast": "/uview-ui/components/u-toast/u-toast",
+    "un-authorized": "/components/UnAuthorized/UnAuthorized"
   }
 }

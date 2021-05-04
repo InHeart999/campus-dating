@@ -6,12 +6,14 @@
 		{
 			"path": "pages/square/index",
 			"style":{
-				"navigationBarTitleText":"广场"
+				"navigationBarTitleText":"广场",
+				"enablePullDownRefresh": true
 			}
 		},{
 			"path": "pages/events/index",
 			"style":{
-				"navigationBarTitleText":"事件"
+				"navigationBarTitleText":"事件",
+				"enablePullDownRefresh": true
 			}
 		},{
 			"path": "pages/publish/index",
@@ -21,12 +23,14 @@
 		},{
 			"path": "pages/news/index",
 			"style":{
-				"navigationBarTitleText":"消息"
+				"navigationBarTitleText":"消息",
+				"enablePullDownRefresh": true
 			}
 		},{
 			"path": "pages/person/index",
 			"style":{
-				"navigationBarTitleText":"个人"
+				"navigationBarTitleText":"个人",
+				"enablePullDownRefresh": true
 			}
 		},{
 			"path": "pages/person/modify/index",
@@ -44,7 +48,7 @@
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
+                "enablePullDownRefresh": true
             }
             
         }
@@ -80,7 +84,7 @@
 		    "style" :                                                                                    
 		    {
 		        "navigationBarTitleText": "",
-		        "enablePullDownRefresh": false
+		        "enablePullDownRefresh": true
 		    }
 		    
 		},
@@ -89,9 +93,24 @@
 		    "style" :                                                                                    
 		    {
 		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": true
+		    }
+		},
+		{
+		    "path" : "pages/person/certification/index",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
 		        "enablePullDownRefresh": false
 		    }
-		    
+		},
+		{
+		    "path" : "pages/person/publish/edit",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false
+		    }
 		}
     ],
         "globalStyle": {
@@ -127,6 +146,16 @@
 				"text":"个人",
 				"iconPath":"static/tabbar/person00.png",
 				"selectedIconPath":"static/tabbar/person01.png"
+			}
+		]
+	},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
 			}
 		]
 	}

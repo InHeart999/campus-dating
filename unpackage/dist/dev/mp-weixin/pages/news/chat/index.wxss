@@ -82,12 +82,13 @@
   border: 1px solid #333333;
   font-size: 14px;
   color: #414141;
-  height: 30px;
   line-height: 30px;
   border-radius: 7px;
   margin-top: 5px;
   text-align: right;
   padding: 3px 10px 3px 10px;
   background: #f8f8f8;
+  word-break: break-all;
+  max-width: 500rpx;
 }
 

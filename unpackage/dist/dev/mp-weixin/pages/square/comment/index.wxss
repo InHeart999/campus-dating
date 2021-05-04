@@ -161,10 +161,13 @@
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
-  font-size: 24rpx;
   color: #9a9a9a;
-  margin-bottom: 10rpx;
+  margin: 40rpx 10rpx;
   position: relative;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: reverse;
+  -webkit-flex-direction: row-reverse;
+          flex-direction: row-reverse;
 }
 .comment .right .bottom .reply.data-v-272068ae {
   color: #5677fc;
@@ -272,6 +275,9 @@
   color: #5677fc;
 }
 .reply .right .content.data-v-272068ae {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
   margin-bottom: 10rpx;
   margin-left: 10rpx;
   margin-top: 10rpx;

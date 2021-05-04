@@ -12,7 +12,9 @@
     "pages/news/chat/index",
     "pages/events/eventDetail/index",
     "pages/person/mark/index",
-    "pages/person/publish/index"
+    "pages/person/publish/index",
+    "pages/person/certification/index",
+    "pages/person/publish/edit"
   ],
   "subPackages": [],
   "window": {
@@ -56,5 +58,5 @@
     ]
   },
   "usingComponents": {},
-  "sitemapLocation": "sitemap98.json"
+  "sitemapLocation": "sitemap26.json"
 }

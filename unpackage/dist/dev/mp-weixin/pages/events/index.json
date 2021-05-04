@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "事件",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "u-toast": "/uview-ui/components/u-toast/u-toast",
     "u-back-top": "/uview-ui/components/u-back-top/u-back-top",

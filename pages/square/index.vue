@@ -2,378 +2,187 @@
 	<view class="wrap">
 		<u-toast ref="uToast" />
 		<u-back-top :scroll-top="scrollTop"></u-back-top>
-		<u-search class="search" height="96" v-model="keyword" search="search"></u-search>
-
-		<view class="comment" v-for="(res, index) in commentList" @click.stop="comment(res)">
+		<u-search class="search" height="96" v-model="selectCondition.keyword" @search="search"></u-search>
+	
+		<view class="comment" v-for="(res, index) in eventList" @click="comment(res)">
 			<view class="right">
 				<view style="display: flex;margin-left: 15rpx;margin-top: 15rpx;">
-					<u-avatar @click="userinfo(res)" :src="res.u_ava"></u-avatar>
+					<u-avatar @click.stop="findUser(res.user_id)" :src="res.user_ava"></u-avatar>
 					<view style="flex: 1;margin-left: 20rpx;display: flex;flex-direction: column;">
-						<view style="display: flex;align-items: center;">{{res.u_name}}
-							<u-icon style="margin-left: 10rpx;" v-show="res.u_gender == '男'" size="30" name="../../../static/boy.png"></u-icon>
-							<u-icon style="margin-left: 10rpx;" v-show="res.u_gender == '女'" size="30" name="../../../static/girl.png"></u-icon>
+						<view @click.stop="findUser(res.user_id)" style="display: flex;align-items: center;">{{res.user_name}}
+							<u-icon style="margin-left: 10rpx;" v-show="res.user_sex == 1" size="30" name="../../../static/boy.png"></u-icon>
+							<u-icon style="margin-left: 10rpx;" v-show="res.user_sex == 0" size="30" name="../../../static/girl.png"></u-icon>
 						</view>
 						<view style="display: flex;">
-							<view>{{res.pub_date}}
+							<view>{{res.event_event_time |timeFilters}}
 							</view>
 						</view>
 					</view>
 				</view>
-				<view class="content">{{ res.content }}</view>
-				<view class="reply-box" v-if="res.url != false">
-					<view v-if="res.url.length == 1" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
+				<view class="content">{{ res.event_event_info }}</view>
+				<view class="reply-box" v-show="res.event_event_img!=''">
+					<view v-if="res.event_event_img.length == 1" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+						<image @click.stop="previewImage(index1,res.event_event_img)" v-for="(res1, index1) in res.event_event_img" :src="res1" mode="aspectFill"
 						 style="width: 100%;"></image>
 					</view>
-					<view v-if="res.url.length == 2 || res.url.length == 4" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
+					<view v-if="res.event_event_img.length == 2 || res.event_event_img.length == 4" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+						<image @click.stop="previewImage(index1,res.event_event_img)" v-for="(res1, index1) in res.event_event_img" :src="res1" mode="aspectFill"
 						 style="width:334rpx;height:334rpx;margin-bottom: 10rpx;"></image>
 					</view>
-					<view v-if="res.url.length == 3" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
-						<image @click="previewImage(index1,res.url)" v-for="(res1, index1) in res.url" :src="res1" mode="aspectFill"
+					<view v-if="res.event_event_img.length == 3" style="padding: 20rpx;display: flex;justify-content: space-between;flex-wrap: wrap;">
+						<image @click.stop="previewImage(index1,res.event_event_img)" v-for="(res1, index1) in res.event_event_img" :src="res1" mode="aspectFill"
 						 style="width:220rpx;height:220rpx;margin-bottom: 10rpx;"></image>
 					</view>
 				</view>
-				<view style="margin-left: 20rpx;font-size: 25rpx;color: gray;margin-bottom: 10rpx;">
+				<!-- <view style="margin-left: 20rpx;font-size: 25rpx;color: gray;margin-bottom: 10rpx;">
 					<view>
 						最新回复于{{res.rep_date}}
 					</view>
-				</view>
+				</view> -->
 			</view>
 		</view>
 		<u-loadmore :status="status" />
-
+		<u-modal v-model="modalInfo.show" :content="modalInfo.content" @confirm="modalConfirm"></u-modal>
+	
 	</view>
 </template>
 
 <script>
-	import store from '../../store/index.js'
+	import store from "../../store/index.js"
+	import utils from "../../common/utils.js"
 	export default {
+		filters:{
+			timeFilters(val){
+				return utils.renderTime(val)
+			}
+		},
 		data() {
 			return {
-				userInfo:{},
-				keyword: '',
-				topiccount: '',
-				followtopiccount: '',
+				selectCondition:{
+					keyword:'',
+					count:0
+				},
+				eventUrl: [],
 				status: 'loadmore',
-				isLike: false,
-				isSc: false,
-				u_id: '',
 				Page: '1',
-				Fpage: '1',
-				urls: [],
-				windowswidth: '',
-				newwidth: '',
-				two: '',
+				eventList: [],
 				scrollTop: 0,
-				commentList: [{
-					id: 1,
-					u_id: 'xx',
-					u_name: 'name01',
-					u_ava: '../../../static/ava01.png',
-					u_gender: '男',
-					content: '今天是个好日子！',
-					com_num: 10,
-					like_num: 66,
-					pub_date: '2021-01-05 16:36:41',
-					url: [require('static/test01.png')],
-					rep_date: '2021-01-05 16:36:41'
-				}, {
-					id: 2,
-					u_id: 'xx',
-					u_name: 'name01',
-					u_ava: '../../../static/ava01.png',
-					u_gender: '男',
-					content: '今天是个好日子！',
-					com_num: 10,
-					like_num: 66,
-					pub_date: '2021-01-05 16:36:41',
-					url: [require('static/test01.png'), require('static/test02.png')],
-					rep_date: '2021-01-05 16:36:41'
-				}, {
-					id: 3,
-					u_id: 'xx',
-					u_name: 'name01',
-					u_ava: '../../../static/ava01.png',
-					u_gender: '男',
-					content: '今天是个好日子！',
-					com_num: 10,
-					like_num: 66,
-					pub_date: '2021-01-05 16:36:41',
-					url: [require('static/test01.png'), require('static/test02.png'), require('static/test01.png')],
-					rep_date: '2021-01-05 16:36:41'
-				}, {
-					id: 4,
-					u_id: 'xx',
-					u_name: 'name01',
-					u_ava: '../../../static/ava01.png',
-					u_gender: '男',
-					content: '今天是个好日子！',
-					com_num: 10,
-					like_num: 66,
-					pub_date: '2021-01-05 16:36:41',
-					url: [require('static/test01.png'), require('static/test02.png'), require('static/test01.png'), require(
-						'static/test02.png')],
-					rep_date: '2021-01-05 16:36:41'
-				}],
-				flag: true,
-				flag2: true,
-				current: 0
+				current: 0,
+				modalInfo:{
+					show:false,
+					content:"小程序将会自动绑定您的微信号！"
+				}
 			}
 		},
 		onLoad() {
-			let that = this;
-			uni.login({
-				provider: 'weixin',
-				success: function(loginRes) {
-					// 获取用户信息				
-					uni.getUserInfo({
-						provider: 'weixin',
-						success: function(res) {
-							store.commit('getUserInfo',res.userInfo) 
-						}
-					});
-				}
-			});
-			//获取动态列表
-			// this.getComment();
-			// this.get();
+			this.login()
+			this.init()
 		},
-		onShow() {
-			// this.getComment();
-			// this.get();
-		},
+		
 		onPullDownRefresh: function() {
-			// this.Page = '1'
-			// this.Fpage = '1'
-			// this.getComment();
-			// this.get();
-
+			this.init()
 		},
-		//触底事件
-		// onReachBottom() {
-		// 	let a = (this.topiccount / 10)
-		// 	let b = (this.followtopiccount / 10)
-		// 	//console.log(b)
-		// 	//console.log(a)
-		// 	if (this.current == 0 && this.Page < a) {
-		// 		this.Page++
-		// 		console.log(this.Page)
-		// 		setTimeout(() => {
-		// 			if (this.flag) {
-		// 				uni.request({
-		// 					url: api.baseUrl+'/topic',
-		// 					method: 'GET',
-		// 					data: {
-		// 						Page: this.Page,
-		// 						u_id: this.u_id
-		// 					},
-		// 					success: (res) => {
-		// 						//console.log(res.data)
-		// 						this.commentList = res.data
-
-		// 						if (this.Page >= a) {
-		// 							this.status = 'nomore'
-		// 							return
-		// 						}
-		// 					}
-		// 				})
-		// 			}
-
-		// 			this.status = 'loading';
-		// 		}, 1500)
-		// 	} else if (this.current == 1 && this.Fpage < b) {
-		// 		this.Fpage++
-		// 		console.log(this.Fpage)
-		// 		setTimeout(() => {
-
-		// 			uni.request({
-		// 				url: api.baseUrl+'/followtopic',
-		// 				method: 'GET',
-		// 				data: {
-		// 					Fpage: this.Fpage,
-		// 					u_id: this.u_id
-		// 				},
-		// 				success: (res) => {
-		// 					//console.log(res.data)
-
-		// 					this.commentList = res.data
-
-		// 					if (this.Fpage >= b) {
-		// 						this.status = 'nomore'
-		// 					}
-
-		// 				}
-		// 			})
-
-
-		// 			this.status = 'loading';
-		// 		}, 1500)
-		// 	}
-
-		// },
+		
 		//返回顶层
 		onPageScroll(e) {
 			this.scrollTop = e.scrollTop;
 		},
 		methods: {
-			search() {
-				console.log('search')
+			init() {
+				let that=this
+				uni.request({
+					url: that.$store.state.baseUrl+'/event/findInner?keyword',
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.eventList=res.data
+						for(let event of res.data){
+							event['event_event_img']=event['event_event_img'].split(',')
+						}
+					}
+				})
 			},
-			//获取数据条数
-			// get() {
-			// 	uni.request({
-			// 		url: api.baseUrl+'/gettopic',
-			// 		method: 'GET',
-			// 		success: (res) => {
-			// 			this.topiccount = res.data[0].count
-			// 			//console.log(this.topiccount)
-			// 		}
-			// 	})
-			// 	uni.request({
-			// 		url: api.baseUrl+'/getfollowtopic',
-			// 		method: 'GET',
-			// 		data: {
-			// 			u_id: this.u_id
-			// 		},
-			// 		success: (res) => {
-			// 			//console.log(res)
-			// 			this.followtopiccount = res.data[0].count
-			// 		}
-			// 	})
-			// },
-			//取消点赞
-			// unLike(res) {
-			// 	console.log('取消点赞')
-			// 	let t_id = res
-			// 	uni.request({
-			// 		url: api.baseUrl+'/udianzan',
-			// 		method: 'POST',
-			// 		data: {
-			// 			id: t_id,
-			// 			u_id: this.u_id
-			// 		},
-			// 		success: (res) => {
-			// 			if (res.data.code == '1') {
-			// 				this.getComment();
-			// 				// this.$refs.uToast.show({
-			// 				// 	title: '取消点赞',
-			// 				// 	type: 'warning',
-			// 				// 	duration: '1000'
-			// 				// })
-			// 			}
-
-			// 		}
-			// 	})
-			// },
-			//点赞
-			// getLike(res) {
-			// 	let t_id = res
-			// 	uni.request({
-			// 		url: api.baseUrl+'/dianzan',
-			// 		method: 'POST',
-			// 		data: {
-			// 			id: t_id,
-			// 			u_id: this.u_id
-			// 		},
-			// 		success: (res) => {
-			// 			if (res.data.code == '1') {
-			// 				this.getComment();
-			// 				// this.$refs.uToast.show({
-			// 				// 	title: '点赞成功',
-			// 				// 	type: 'success',
-			// 				// 	duration: '1000'
-			// 				// })
-			// 			}
-
-			// 		}
-			// 	})
-			// },
+			
+			search() {
+				let that=this
+				uni.request({
+					url: that.$store.state.baseUrl+'/event/findInner?keyword='+that.selectCondition.keyword,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.eventList=res.data
+						for(let event of res.data){
+							event['event_event_img']=event['event_event_img'].split(',')
+						}
+					}
+				})
+			},
+			
+			login(){
+				let that=this
+				uni.login({
+					provider: 'weixin',
+					success: (res)=>{
+						uni.request({
+							url: that.$store.state.baseUrl+'/user/getOpenid?loginCode='+res.code,
+							header: {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							method: 'GET',
+							success: (res) => {
+								if(res.data!=""){	
+									store.commit('getUserInfo',res.data)
+								}else{
+									that.modalInfo.show=true
+								}
+							}
+						})
+					},
+					fail: (res) => {
+						console.log(res,'fail')
+					}
+				})
+			},
+			
+			modalConfirm(){
+				this.login();
+				this.modalInfo.show=false
+			},
+			
 			//图片预览
 			previewImage(current, photos) {
-				// const urls = 
 				uni.previewImage({
 					current,
 					urls: photos
 				})
 			},
 			//个人中心
-			userinfo(res) {
+			findUser(userId) {
 				uni.navigateTo({
-					url: '../userinfo/index?u_id=' + res.u_id
+					url: '../userinfo/index?userId=' + userId
 				})
 			},
 
 			//评论详情
 			comment(res) {
 				uni.navigateTo({
-					url: './comment/index?id=' + res.id + '&name=' + res.u_name
+					url: './comment/index?event_id='+res.event_event_id+'&user_id='+res.user_id+'&user_name='+res.user_name+'&user_ava='+res.user_ava
 				})
 			},
-			//信息初始化			
-			// getComment() {
-			// 	uni.getStorage({
-			// 		key: 'userinfo',
-			// 		success: (res) => {
-			// 			this.u_id = res.data.openid;
-			// 			this.get();
-			// 			if (this.current == 1) {
-			// 				uni.request({
-			// 					url: api.baseUrl+'/followtopic',
-			// 					method: 'GET',
-			// 					data: {
-			// 						u_id: this.u_id,
-			// 						Fpage: this.Fpage
-			// 					},
-			// 					success: (res) => {
-
-			// 						this.commentList = res.data
-			// 						uni.hideNavigationBarLoading();
-			// 						uni.stopPullDownRefresh();
-			// 						uni.hideLoading();
-			// 					}
-			// 				})
-			// 			} else if (this.current == 0) {
-			// 				uni.request({
-			// 					url: api.baseUrl+'/topic',
-			// 					method: 'GET',
-			// 					data: {
-			// 						Page: this.Page,
-			// 						u_id: this.u_id
-			// 					},
-			// 					success: (res) => {
-
-			// 						//console.log(res.data)
-			// 						this.commentList = res.data;
-			// 						//console.log(this.commentList)
-			// 						uni.hideNavigationBarLoading();
-			// 						uni.stopPullDownRefresh();
-			// 						uni.hideLoading();
-			// 					}
-			// 				})
-			// 			}
-			// 		},
-			// 		fail: (res) => {
-			// 			uni.showToast({
-			// 				title: '您尚未登录！'
-			// 			})
-			// 			setTimeout(() => {
-			// 				uni.navigateTo({
-			// 					url: '../user/login'
-			// 				})
-			// 			}, 1500)
-			// 		}
-			// 	})
-			// 	uni.showLoading({
-			// 		title: '加载中'
-			// 	})
-
-			// }
-
 		}
 	}
 </script>
 
+
+<style>
+	page {
+		background-color: #eeeeee;
+	}
+</style>
 
 <style lang="scss" scoped>
 	.num {
@@ -467,16 +276,13 @@
 			}
 
 			.content {
-				//margin-bottom: 10rpx;
 				margin-left: 20rpx;
 				margin-top: 15rpx;
-				margin-bottom: 15rpx;
+				margin-bottom: 45rpx;
 				margin-right: 20rpx;
 			}
 
 			.reply-box {
-				//background-color: rgb(242, 242, 242);
-				//border-radius: 12rpx;
 
 				.item {
 					padding: 20rpx;

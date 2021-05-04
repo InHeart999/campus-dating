@@ -4,16 +4,17 @@
 			<u-toast ref="uToast" />
 			<view class="userinfo">
 				<view class="face" @click="modify">
-					<image :src="user_ava"></image>
+					<image :src="userInfo.user_ava" class="ava"></image>
 				</view>
 				<view class="info">
-					<view class="username">{{user_name}}
-						<image v-show="user_sex==1" src="../../static/boy.png"></image>
-						<image v-show="user_sex==0" src="../../static/girl.png"></image>
+					<view class="username">
+						{{userInfo.user_name}}
+						<image v-show="userInfo.user_sex==0" src="../../static/girl.png"></image>
+						<image v-show="userInfo.user_sex==1" src="../../static/boy.png"></image>
 					</view>
 					<view class="setting">
-						<u-tag :show="!user_status" text="未认证" shape="circle" type="error" />
-						<u-tag :show="user_status" text="已认证" shape="circle" type="success" />
+						<u-tag :show="userInfo.user_status==0" text="未认证" shape="circle" type="error" />
+						<u-tag :show="userInfo.user_status==1" text="已认证" shape="circle" type="success" />
 					</view>
 				</view>
 			</view>
@@ -29,23 +30,33 @@
 
 
 		<view class="list">
-			<view class="li" hover-class="hover" @click="modify">
-				<view class="icon">
-					<image src="../../static/ziliao.png"></image>
+			<view v-show="userInfo.user_status==1">
+				<view class="li" hover-class="hover" @click="modify">
+					<view class="icon">
+						<image src="../../static/ziliao.png"></image>
+					</view>
+					<view class="text">个人资料</view>
 				</view>
-				<view class="text">个人资料</view>
+				<view class="li" hover-class="hover" @click="publish">
+					<view class="icon">
+						<image src="../../static/publish.png"></image>
+					</view>
+					<view class="text">我的发布</view>
+				</view>
+				<view class="li" hover-class="hover" @click="mark">
+					<view class="icon">
+						<image src="../../static/mark.png"></image>
+					</view>
+					<view class="text">我的标记</view>
+				</view>
 			</view>
-			<view class="li" hover-class="hover" @click="publish">
-				<view class="icon">
-					<image src="../../static/publish.png"></image>
+			<view>
+				<view class="li" hover-class="hover" @click="certification">
+					<view class="icon">
+						<image src="../../static/ziliao.png"></image>
+					</view>
+					<view class="text">学生认证</view>
 				</view>
-				<view class="text">我的发布</view>
-			</view>
-			<view class="li" hover-class="hover" @click="mark">
-				<view class="icon">
-					<image src="../../static/mark.png"></image>
-				</view>
-				<view class="text">我的标记</view>
 			</view>
 		</view>
 	</view>
@@ -57,33 +68,33 @@
 	export default {
 		data() {
 			return {
-				// user_name: "",
-				// user_ava: "",
-				// user_sex:"",
-				user_status: false,
+				userInfo:{}
 			};
 		},
-		computed: { ...mapState({
-				user_name: state => state.userInfo.user_name,
-				user_ava: state => state.userInfo.user_ava,
-				user_sex: state => state.userInfo.user_sex,
-			})
+		onPullDownRefresh: function() {
+			this.init()
 		},
-		// computed: {
-		// 	...mapState({
-		// 		userInfo: state => state.userInfo,
-		// 	})
-		// },
-		onLoad() {
-			this.init();
-		},
-		onShow() {
-			this.init();
+		onLoad(){
+			this.init()
 		},
 		methods: {
-			//信息初始化
-			init() {
-
+			init(){
+				let that = this
+				uni.request({
+					url: that.$store.state.baseUrl+'/user/' + that.$store.state.userInfo.user_id,
+					header: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					method: 'GET',
+					success: (res) => {
+						that.userInfo=res.data
+					}
+				})
+			},
+			certification() {
+				uni.navigateTo({
+					url: './certification/index'
+				})
 			},
 			modify() {
 				uni.navigateTo({
@@ -118,33 +129,34 @@
 		align-items: center;
 
 		.userinfo {
-			position: absolute;
-			top: 100rpx;
-			left: 80rpx;
-			//width: 100%;
-			display: flex;
+			width: 100%;
+			text-align: center;
+			height: 300rpx;
 
 			.face {
 				flex-shrink: 0;
 				width: 15vw;
 				height: 15vw;
+				margin-left: 310rpx;
 
-				image {
-					width: 100%;
-					height: 100%;
-					border-radius: 100%
+				.ava {
+					overflow: hidden;
+					width: 130rpx;
+					height: 130rpx;
+					left: 50%;
+					border-radius: 50%;
+					box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+					background-color: white;
 				}
 			}
 
 			.info {
-				display: flex;
-				flex-flow: wrap;
-				padding-left: 30upx;
-
 				.username {
 					width: 100%;
 					color: #fff;
 					font-size: 40upx;
+					padding-top:30rpx;
+					padding-left: 5vw;
 
 					image {
 						width: 5vw;
@@ -153,21 +165,10 @@
 					}
 				}
 
-				.grade {
-					display: flex;
-					align-items: center;
-					padding: 10 20upx;
-					height: 60upx;
-					color: #fff;
-					background-color: rgba(0, 0, 0, 0.1);
-					border-radius: 20upx;
-					font-size: 24upx
-				}
-
 				.setting {
-					margin-left: 180rpx;
 					color: white;
 					font-size: 40rpx;
+					padding-top:10rpx;
 				}
 			}
 		}

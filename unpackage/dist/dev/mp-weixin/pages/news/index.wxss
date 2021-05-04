@@ -54,7 +54,12 @@
 }
 .box .badge.data-v-452e6662 {
   position: absolute;
+  scale: 1.5;
+  top: 0;
+}
+.box .time.data-v-452e6662 {
+  position: absolute;
   right: 20rpx;
-  top: 40rpx;
+  bottom: 30rpx;
 }
 
